@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Bootstrap 3, from LayoutIt!</title>
+
+    <meta name="description" content="Source code generated using layoutit.com">
+    <meta name="author" content="LayoutIt!">
+
+    <link href="jquery-ui-1.11.4/jquery-ui.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- alpaca -->
+    <link type="text/css" href="//code.cloudcms.com/alpaca/1.5.17/bootstrap/alpaca.min.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet">
+
+  </head>
+  <body>
+
+    <div class="container-fluid">
+	<div class="row">
+		<div class="col-md-12">
+			<button type="button" class="btn btn-default" onclick="javascript:AddNode();">
+				Add Node
+			</button>
+		</div>
+	</div>
+	<div class="row">
+		<div id="canvas" class="col-md-12 canvas" style="width: 500px;height: 500px">
+		</div>
+	</div>
+</div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="jquery-ui-1.11.4/jquery-ui.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jsPlumb-2.1.2-min.js"></script>
+    <script src="js/scripts.js"></script>
+
+    <!-- handlebars -->
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.0/handlebars.js"></script>
+
+     <script type="text/javascript" src="//code.cloudcms.com/alpaca/1.5.17/bootstrap/alpaca.min.js"></script>
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+
+     <script>
+
+      String.prototype.format = function(placeholders) {
+          if ($.isArray(placeholders)) {
+              var args = arguments;
+              return this.replace(/{(\d+)}/g, function(match, number) {
+                  return typeof args[number] != 'undefined'
+                          ? args[number]
+                          : match
+                          ;
+              });
+          }
+          else { //Object
+              var s = this;
+              for(var propertyName in placeholders) {
+                  var re = new RegExp('{' + propertyName + '}', 'gm');
+                  s = s.replace(re, placeholders[propertyName]);
+              }
+              return s;
+          }
+      };
+
+      function editTable(nodeId){
+          $.get("assests/bootui.html?time=" + (new Date()).getTime(), function(data){
+              console.log('DATA:Modal',data)
+              $('body').append(data);
+
+              $("#form").alpaca({
+                  "schema": {
+                      "title":"User Feedback",
+                      "description":"What do you think about Alpaca?",
+                      "type":"object",
+                      "properties": {
+                          "name": {
+                              "type":"string",
+                              "title":"Name"
+                          },
+                          "feedback": {
+                              "type":"string",
+                              "title":"Feedback"
+                          },
+                          "ranking": {
+                              "type":"string",
+                              "title":"Ranking",
+                              "enum":['excellent','ok','so so']
+                          }
+                      }
+                  }
+              });
+
+
+              $('#myModal').dialog({
+                  autoOpen:true,
+                  my: "center",
+                  at: "center",
+                  of: window
+              });
+
+
+          });
+      }
+
+      function deleteTable(nodeId){
+          jsPlumb.empty(nodeId);
+      }
+
+      function AddNode(){
+          $.get("assests/node.html?time=" + (new Date()).getTime(), function(data) {
+              console.log("DATA::",data);
+              var node_name = 'File'
+              var node_id =  'node_name' + '_' + new Date().getTime()
+              console.log("FORMATED DATA",data.format({node_id: node_id,node_name:node_name}))
+              $('.canvas').append(data.format({node_id: node_id,node_name:node_name}));
+//              setThePanel(table, mode);
+//              if (func) func();
+              jsPlumb.draggable(node_id, {
+                  containment:true,
+                  step: function () {
+                      jsPlumb.repaintEverything();
+                  },
+                  drag:function(){
+                      jsPlumb.repaintEverything();
+                  },
+                  stop: function(event, ui) {
+                      console.log(event.pos[0], event.pos[1]);
+                      jsPlumb.repaintEverything();
+                  }
+              });
+              // add div to jsplumb
+
+
+
+          });
+      }
+
+      jsPlumb.bind("ready", function() {
+
+
+
+
+
+          jsPlumb.setContainer($("canvas"));
+      });
+
+
+  </script>
+
+  </body>
+</html>
