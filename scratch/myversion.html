@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Bootstrap 3, from LayoutIt!</title>
+
+    <meta name="description" content="Source code generated using layoutit.com">
+    <meta name="author" content="LayoutIt!">
+
+    <link href="jquery-ui-1.11.4/jquery-ui.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" class="btn btn-default" onclick="javascript:AddNode();">
+                Add Node
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div id="canvas" class="col-md-12 canvas" style="width: 500px;height: 500px;border:solid">
+        </div>
+    </div>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="jquery-ui-1.11.4/jquery-ui.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jsPlumb-2.1.2-min.js"></script>
+<script src="js/scripts.js"></script>
+
+
+<script>
+    String.prototype.format = function(placeholders) {
+        if ($.isArray(placeholders)) {
+            var args = arguments;
+            return this.replace(/{(\d+)}/g, function(match, number) {
+                return typeof args[number] != 'undefined'
+                        ? args[number]
+                        : match
+                        ;
+            });
+        }
+        else { //Object
+            var s = this;
+            for(var propertyName in placeholders) {
+                var re = new RegExp('{' + propertyName + '}', 'gm');
+                s = s.replace(re, placeholders[propertyName]);
+            }
+            return s;
+        }
+    };
+    var nodes = [
+        {name:'file',fields:['field1','field2','field3']}
+    ];
+    var LocalStorage = {};
+
+    /**
+     * Edit Node now , add more fields
+     */
+    function editNode(nodeId){
+        // update properties on node
+        nodes[0].fields.push('field4');
+        drawNode(nodes[0],nodeId)
+    }
+
+    function drawNode(node,nodeId){
+        $.get("assests/node.html?time=" + (new Date()).getTime(), function(data) {
+            var nodeId = nodeId ? nodeId : (node.name + '_' + new Date().getTime());
+            $('.canvas').append(data.format({node_id: nodeId,node_name:node.name}));
+            jsPlumb.draggable(nodeId,{containment:"parent"});
+            node.fields.forEach(function(field){
+                var rowId = nodeId + '_' + field
+                var tableRow = '<tr id=' + rowId + '>' +
+                        '<td align="center">'+field+'</td>'+
+                        '</tr>'
+                console.log('tableRow',tableRow);
+                $('#' + nodeId + " .table").append(tableRow);
+                jsPlumb.addEndpoint(rowId, {
+                    anchors:["Right"],
+                    isSource:true,
+                    connector: ["Straight"],
+                    /* Endpoint-Style */
+                    endpoint:"Dot",
+                    paintStyle:{ fillStyle:"white", outlineColor:"blue", outlineWidth:1 },
+                    hoverPaintStyle:{ fillStyle:"lightblue" },
+                    /* Connector(Line)-Style */
+                    connectorStyle:{ strokeStyle:"blue", lineWidth:1 },
+                    connectorHoverStyle:{
+                        lineWidth:2
+                    }
+                });
+            });
+        });
+    }
+
+    jsPlumb.ready(function() {
+        jsPlumb.setContainer("canvas");
+        nodes.forEach(function(n){
+             drawNode(n)
+        });
+    });
+
+
+
+
+
+
+</script>
+
+</body>
+</html>
